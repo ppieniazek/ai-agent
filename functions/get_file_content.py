@@ -8,9 +8,9 @@ def get_file_content(working_directory, file_path):
         return f'Error: "{working_directory}" directory does not exist!'
 
     abs_work_dir = os.path.abspath(working_directory)
-    abs_file_path = os.path.abspath(os.path.join(abs_work_dir, file_path))
+    abs_file_path = os.path.abspath(os.path.join(working_directory, file_path))
     if not os.path.exists(abs_file_path):
-        return f'Error: "{abs_file_path}" directory does not exist!'
+        return f'Error: "{file_path}" does not exist!'
 
     if not abs_file_path.startswith(abs_work_dir):
         return f'Error: Cannot read "{file_path}" as it is outside the permitted working directory'
