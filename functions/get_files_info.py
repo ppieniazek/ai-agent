@@ -1,29 +1,23 @@
 import os
 
 
-def get_files_info(working_directory, directory=None):
-    if not os.path.exists(working_directory):
-        return f'Error: "{working_directory}" directory does not exist!'
-    abs_work_dir = os.path.abspath(working_directory)
-
-    if directory is not None:
-        abs_dir = os.path.abspath(os.path.join(working_directory, directory))
-
-        if not os.path.exists(abs_dir):
-            return f'Error: "{directory}" directory does not exist!'
-        if not abs_dir.startswith(abs_work_dir):
-            return f'Error: Cannot list "{directory}" as it is outside the permitted working directory'
-        if not os.path.isdir(abs_dir):
-            return f'Error: "{directory}" is not a directory'
-    else:
-        abs_dir = abs_work_dir
+def get_files_info(working_directory, directory="."):
+    abs_working_dir = os.path.abspath(working_directory)
+    target_dir = os.path.abspath(os.path.join(working_directory, directory))
+    if not target_dir.startswith(abs_working_dir):
+        return f'Error: Cannot list "{directory}" as it is outside the permitted working directory'
+    if not os.path.isdir(target_dir):
+        return f'Error: "{directory}" is not a directory'
     try:
-        dir_contents = []
-        for file in os.listdir(abs_dir):
-            abs_file_path = os.path.join(abs_dir, file)
-            dir_contents.append(
-                f"- {file}: file_size={os.path.getsize(abs_file_path)} bytes, is_dir={os.path.isdir(abs_file_path)}"
+        files_info = []
+        for filename in os.listdir(target_dir):
+            filepath = os.path.join(target_dir, filename)
+            file_size = 0
+            is_dir = os.path.isdir(filepath)
+            file_size = os.path.getsize(filepath)
+            files_info.append(
+                f"- {filename}: file_size={file_size} bytes, is_dir={is_dir}"
             )
-        return "\n".join(dir_contents)
+        return "\n".join(files_info)
     except Exception as e:
-        return f"Error: {e}"
+        return f"Error listing files: {e}"
