@@ -1,3 +1,3 @@
-# Build AI agent using Python
+# Build an AI Agent in Python
 
-[text](https://boot.dev) guided project.
+[Boot.dev](https://www.boot.dev/) guided project.
