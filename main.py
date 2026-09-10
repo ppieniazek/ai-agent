@@ -37,30 +37,36 @@ def generate_content(
     messages: list,
     verbose: bool,
 ) -> None:
-    response = client.chat.completions.create(
-        model="openrouter/free",
-        messages=messages,
-        tools=available_functions,
-    )
-    if response.usage is None:
-        raise RuntimeError("Failed request")
-    if verbose:
-        print(f"Prompt tokens: {response.usage.prompt_tokens}")
-        print(f"Response tokens: {response.usage.completion_tokens}")
-    message = response.choices[0].message
-    if message.tool_calls:
-        for tool_call in message.tool_calls:
-            if tool_call.type != "function":
-                continue
-            result_message = call_function(tool_call, verbose)
-            if not result_message.get("content"):
-                raise RuntimeError(
-                    f"Calling {tool_call.function.name} function failed."
-                )
-            if verbose:
-                print(f"-> {result_message['content']}")
+    for _ in range(20):
+        response = client.chat.completions.create(
+            model="openrouter/free",
+            messages=messages,
+            tools=available_functions,
+        )
+        if response.usage is None:
+            raise RuntimeError("Failed request")
+        if verbose:
+            print(f"Prompt tokens: {response.usage.prompt_tokens}")
+            print(f"Response tokens: {response.usage.completion_tokens}")
+        message = response.choices[0].message
+        messages.append(message)
+        if message.tool_calls:
+            for tool_call in message.tool_calls:
+                if tool_call.type != "function":
+                    continue
+                result_message = call_function(tool_call, verbose)
+                if not result_message.get("content"):
+                    raise RuntimeError(
+                        f"Calling {tool_call.function.name} function failed."
+                    )
+                messages.append(result_message)
+                if verbose:
+                    print(f"-> {result_message['content']}")
+        else:
+            print(f"Final response:\n{message.content}")
+            break
     else:
-        print(f"Response:\n{message.content}")
+        print("Couldn't form the response, too many iterations (20).")
 
 
 if __name__ == "__main__":
